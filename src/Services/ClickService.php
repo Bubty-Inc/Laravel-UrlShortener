@@ -26,6 +26,7 @@ use YorCreative\UrlShortener\Strategies\FilterClicks\Filters\TracingSourceFilter
 use YorCreative\UrlShortener\Strategies\FilterClicks\Filters\TracingTermFilter;
 use YorCreative\UrlShortener\Traits\ShortUrlHelper;
 
+
 class ClickService
 {
     use ShortUrlHelper;
@@ -45,10 +46,10 @@ class ClickService
     /**
      * @throws ClickServiceException
      */
-    public static function track(string $identifier, string $request_ip, int $outcome_id, bool $test = false): void
+    public static function track(string $identifier, string $request_ip, int $outcome_id, bool $test = false): ?ShortUrlClick
     {
         try {
-            ClickRepository::createClick(
+            return ClickRepository::createClick(
                 UrlRepository::findByIdentifier($identifier)->id,
                 LocationRepository::findOrCreateLocationRecord(
                     ! $test
