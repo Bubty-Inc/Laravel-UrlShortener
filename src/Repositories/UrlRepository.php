@@ -117,6 +117,20 @@ class UrlRepository
     /**
      * @throws UrlRepositoryException
      */
+    public static function findByIdentifierWithNoEagerLoading(string $identifier): ShortUrl
+    {
+        try {
+            return ShortUrl::where(
+                'identifier', $identifier
+            )->firstOrFail();
+        } catch (Exception) {
+            throw new UrlRepositoryException('Unable to find short url identifier: '.$identifier);
+        }
+    }
+
+    /**
+     * @throws UrlRepositoryException
+     */
     public static function findByUtmCombination(array $utm_combination): Collection
     {
         try {
