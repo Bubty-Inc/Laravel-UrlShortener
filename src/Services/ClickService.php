@@ -8,6 +8,7 @@ use Throwable;
 use YorCreative\UrlShortener\Builders\ClickQueryBuilder\ClickQueryBuilder;
 use YorCreative\UrlShortener\Exceptions\ClickServiceException;
 use YorCreative\UrlShortener\Exceptions\FilterClicksStrategyException;
+use YorCreative\UrlShortener\Models\ShortUrl;
 use YorCreative\UrlShortener\Models\ShortUrlClick;
 use YorCreative\UrlShortener\Repositories\ClickRepository;
 use YorCreative\UrlShortener\Repositories\LocationRepository;
@@ -51,6 +52,26 @@ class ClickService
         try {
             return ClickRepository::createClick(
                 UrlRepository::findByIdentifier($identifier)->id,
+                LocationRepository::findOrCreateLocationRecord(
+                    ! $test
+                        ? LocationRepository::getLocationFrom($request_ip)
+                        : LocationRepository::locationUnknown($request_ip)
+                )->id,
+                $outcome_id
+            );
+        } catch (Exception $exception) {
+            throw new ClickServiceException($exception->getMessage());
+        }
+    }
+
+    /**
+     * @throws ClickServiceException
+     */
+    public static function trackWithShortUrl(ShortUrl $shortUrl, string $request_ip, int $outcome_id, bool $test = false): ?ShortUrlClick
+    {
+        try {
+            return ClickRepository::createClick(
+                $shortUrl->id,
                 LocationRepository::findOrCreateLocationRecord(
                     ! $test
                         ? LocationRepository::getLocationFrom($request_ip)
